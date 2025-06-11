@@ -1,0 +1,15 @@
+services:
+  nginx:
+    image: openresty/openresty:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/lua:/etc/nginx/lua:ro
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
