@@ -1,12 +1,25 @@
 services:
   nginx:
-    image: openresty/openresty:alpine
+    build: .
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/lua:/etc/nginx/lua:ro
+      - ./logs:/var/log/nginx
+    environment:
+      - BACKEND_API_URL=${BACKEND_API_URL:-https://hagfish-sound-gator.ngrok-free.app/api/public/funnels/check-domain}
+      - FRONTEND_PRIVATE_URL=${FRONTEND_PRIVATE_URL:-http://localhost:3010/api/private/funnels/}
+      - FALLBACK_URL=${FALLBACK_URL:-https://example.com}
+      - CACHE_TTL=${CACHE_TTL:-300}
+      - REQUEST_TIMEOUT=${REQUEST_TIMEOUT:-3000}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
     networks:
       - proxy
 
